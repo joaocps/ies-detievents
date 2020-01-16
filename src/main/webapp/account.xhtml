@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>EVENTS@DETI</title>
+    </h:head>
+    <h:body style="background: linear-gradient(to right, #CFDEF3, #E0EAFC)">
+        <div class="ui-fluid" style="padding: 20px">
+            <h:form id="form" >
+                <p:panelGrid columns="3" columnClasses="ui-grid-col-8,ui-grid-col-2, ui-grid-col-2" layout="grid" styleClass="ui-panelgrid-blank">
+                    <p:outputLabel value="EVENTS@DETI" style="font-size: 26px"/>
+                    <p:outputLabel value="Logged in as #{loginBean.loginRequest.username}" style="font-size: 18px"/>
+                    <p:commandButton value="Logout" action="#{loginBean.logoutBtnClick}" update="growl"/>
+                </p:panelGrid>
+
+                <p:growl id="growl" showDetail="true" life="3000" />
+
+                <p:tabMenu activeIndex="#{param.i}">
+                    <p:menuitem value="My Account" outcome="/account" icon="fa fa-user">
+                        <f:param name="i" value="0" />
+                    </p:menuitem>
+                    <p:menuitem value="Book Classroom" outcome="/bookClassroom" icon="fa fa-user">
+                        <f:param name="i" value="1" />
+                    </p:menuitem>
+                    <p:menuitem value="Events" outcome="/eventsList" icon="ui-icon-search"> 
+                        <f:param name="i" value="2" />
+                    </p:menuitem>
+                    <p:menuitem value="Create Event" rendered="#{!loginBean.isAluno}" outcome="/eventCreate" icon="ui-icon-star">
+                        <f:param name="i" value="3" />
+                    </p:menuitem>
+                </p:tabMenu>
+
+                <h:panelGrid columns="2" cellpadding="10">
+
+                    <p:outputLabel value="Username:" />
+                    <p:outputLabel value="#{accountBean.currentUser.username}"/>
+
+                    <p:outputLabel value="First Name:" />
+                    <p:outputLabel value="#{accountBean.currentUser.firstname}"/>
+
+                    <p:outputLabel value="Last Name:" />
+                    <p:outputLabel value="#{accountBean.currentUser.lastname}" />
+
+                    <p:outputLabel value="Email:" />
+                    <p:outputLabel value="#{accountBean.currentUser.email}"/>
+
+                    <p:outputLabel value="NMec:" />
+                    <p:outputLabel value="#{accountBean.user.nmec}"/>
+
+                    <p:outputLabel rendered="#{accountBean.isAluno}" value="Course:" />
+                    <p:outputLabel rendered="#{accountBean.isAluno}" value="#{accountBean.user.curso}" />
+
+                    <p:outputLabel value="Department:" />
+                    <p:outputLabel value="#{accountBean.user.dep.nome}"/>
+
+                    <p:commandButton value="Edit" onclick="PF('dlgEdit').show();" />
+
+                    <p:commandButton value="Change Password" onclick="PF('dlgPass').show();" />
+
+                    <p:commandButton value="Delete Account" actionListener="#{accountBean.deleteBtnClick}" update="growl">
+                        <p:confirm header="Delete Account" message="Are you sure?" icon="ui-icon-alert" />
+                    </p:commandButton>
+                </h:panelGrid>
+
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </p:confirmDialog>
+
+                <p:dialog header="Edit Account" widgetVar="dlgEdit" resizable="false" draggable="false" showEffect="puff" hideEffect="clip" >
+                    <h:panelGrid columns="2" cellpadding="10">
+
+                        <p:outputLabel for="firstname" value="First Name:" />
+                        <p:inputText id="firstname" value="#{accountBean.currentUser.firstname}" required="#{not empty param[saveBtn.clientId]}" label="First Name"/>
+
+                        <p:outputLabel for="lastname" value="Last Name:" />
+                        <p:inputText id="lastname" value="#{accountBean.currentUser.lastname}" required="#{not empty param[saveBtn.clientId]}" label="Last Name"/>
+
+                        <p:outputLabel for="email" value="Email:" />
+                        <p:inputText id="email" value="#{accountBean.currentUser.email}" required="#{not empty param[saveBtn.clientId]}" label="Email"/>
+
+                        <p:outputLabel for="nmec" value="NMec:" />
+                        <p:inputText id="nmec" value="#{accountBean.user.nmec}" required="#{not empty param[saveBtn.clientId]}" label="NMec"/> 
+
+                        <p:outputLabel for="curso" rendered="#{accountBean.isAluno}" value="Curso:" />
+                        <p:inputText id="curso" rendered="#{accountBean.isAluno}" value="#{accountBean.user.curso}" required="#{not empty param[saveBtn.clientId]}" label="Curso"/>
+
+                        <p:outputLabel for="depList" value="Department:" />
+                        <p:selectOneMenu id="depList" value="#{accountBean.user.dep}" var="d" filter="true" converter="departamentoConverter" filterMatchMode="contains" required="#{not empty param[regBtn.clientId]}">
+                            <f:selectItems value="#{accountBean.departamentos}" var="dep" itemLabel="#{dep.nome}" itemValue="#{dep}" />
+                            <p:column>
+                                <h:outputText value="#{d.nome}" />
+                            </p:column>
+                        </p:selectOneMenu>
+
+                        <f:facet name="footer">
+                            <p:commandButton binding="#{saveBtn}" value="Save" update="growl" actionListener="#{accountBean.saveBtnClick}"
+                                             oncomplete="handleSaveRequest(xhr, status, args)"/>
+                        </f:facet>
+                    </h:panelGrid>
+
+                    <f:facet name="footer">
+                        <p:commandButton value="Cancel" onclick="PF('dlgEdit').hide();" />
+                    </f:facet>  
+                </p:dialog>
+
+                <p:dialog header="Change Password" widgetVar="dlgPass" resizable="false" draggable="false" showEffect="puff" hideEffect="clip" >
+                    <h:panelGrid columns="2" cellpadding="10">
+
+                        <p:outputLabel for="oldpassword" value="Old Password:" />
+                        <p:password id="oldpassword" value="#{accountBean.passRequest.oldpassword}" required="#{not empty param[passBtn.clientId]}" label="Old Password" />
+
+                        <p:outputLabel for="newpassword" value="New Password:" />
+                        <p:password id="newpassword" value="#{accountBean.passRequest.newpassword}" required="#{not empty param[passBtn.clientId]}" label="New Password" />
+
+                        <f:facet name="footer">
+                            <p:commandButton binding="#{passBtn}" value="Change" update="growl" actionListener="#{accountBean.passBtnClick}"
+                                             oncomplete="handleChangePassRequest(xhr, status, args)"/>
+                        </f:facet>
+                    </h:panelGrid>
+
+                    <f:facet name="footer">
+                        <p:commandButton value="Cancel" onclick="PF('dlgPass').hide();" />
+                    </f:facet>  
+                </p:dialog>
+
+            </h:form>
+        </div>
+    </h:body>
+    <script type="text/javascript">
+        function handleSaveRequest(xhr, status, args) {
+            if (args.validationFailed || !args.saveSuccess) {
+                PF('dlgEdit').jq.effect("shake", {times: 5}, 100);
+            } else {
+                PF('dlgEdit').hide();
+                window.location = "account.xhtml?i=0";
+            }
+        }
+
+        function handleChangePassRequest(xhr, status, args) {
+            if (args.validationFailed || !args.success) {
+                PF('dlgPass').jq.effect("shake", {times: 5}, 100);
+            } else {
+                PF('dlgPass').hide();
+            }
+        }
+    </script>
+</html>
+

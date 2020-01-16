@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>EVENTS@DETI</title>
+    </h:head>
+    <h:body style="background: linear-gradient(to right, #CFDEF3, #E0EAFC)">
+        <div class="ui-fluid" style="padding: 20px">
+            <h:form id="form" >
+                <p:panelGrid columns="3" columnClasses="ui-grid-col-8,ui-grid-col-2, ui-grid-col-2" layout="grid" styleClass="ui-panelgrid-blank">
+                    <p:outputLabel value="EVENTS@DETI" style="font-size: 26px"/>
+                    <p:outputLabel value="Logged in as #{loginBean.loginRequest.username}" style="font-size: 18px"/>
+                    <p:commandButton value="Logout" action="#{loginBean.logoutBtnClick}" update="growl"/>
+                </p:panelGrid>
+
+                <p:growl id="growl" showDetail="true" life="3000" />
+
+                 <p:tabMenu activeIndex="#{param.i}">
+                    <p:menuitem value="My Account" outcome="/account" icon="fa fa-user">
+                        <f:param name="i" value="0" />
+                    </p:menuitem>
+                    <p:menuitem value="Book Classroom" outcome="/bookClassroom" icon="fa fa-user">
+                        <f:param name="i" value="1" />
+                    </p:menuitem>
+                    <p:menuitem value="Events" outcome="/eventsList" icon="ui-icon-search"> 
+                        <f:param name="i" value="2" />
+                    </p:menuitem>
+                    <p:menuitem value="Create Event" rendered="#{!loginBean.isAluno}" outcome="/eventCreate" icon="ui-icon-star">
+                        <f:param name="i" value="3" />
+                    </p:menuitem>
+                </p:tabMenu>
+
+                <p:panelGrid columns="4" columnClasses="ui-grid-col-2,ui-grid-col-4,ui-grid-col-2,ui-grid-col-4" layout="grid" styleClass="ui-panelgrid-blank">
+
+                    <p:outputLabel for="startDate" value="Start Date:" />
+                    <p:calendar id="startDate" value="#{bookBean.reserva.dataInicio}" pattern="dd/MM/yyyy HH:mm:ss" mask="true" required="#{not empty param[bookBtn.clientId]}" label="Start Date" />
+                    <p:outputLabel for="endDate" value="End Date:" />
+                    <p:calendar id="endDate" value="#{bookBean.reserva.dataFim}" pattern="dd/MM/yyyy HH:mm:ss" mask="true" required="#{not empty param[bookBtn.clientId]}" label="End Date" />
+
+                    <p:outputLabel for="depList" value="Department:" />
+                    <p:selectOneListbox id="depList" value="#{bookBean.departamento}" var="d" filter="true" converter="departamentoConverter" filterMatchMode="contains" required="#{not empty param[bookBtn.clientId]}">
+                        <p:ajax update="salasList" event="change" listener="#{bookBean.updateSalasList}" />
+                        <f:selectItems value="#{bookBean.departamentos}" var="dep" itemLabel="#{dep.nome}" itemValue="#{dep}" />
+                        <p:column>
+                            <h:outputText value="#{d.nome}" />
+                        </p:column>
+                    </p:selectOneListbox>
+                    
+                    <p:outputLabel for="salasList" value="Classroom:" />
+                    <p:selectOneListbox id="salasList" value="#{bookBean.reserva.sala}" var="s" filter="true" converter="salaConverter" filterMatchMode="contains" required="#{not empty param[bookBtn.clientId]}">
+                        <f:selectItems value="#{bookBean.salas}" var="sala" itemLabel="#{sala.nome}" itemValue="#{sala}" />
+                        <p:column>
+                            <h:outputText value="#{s.nome}" />
+                        </p:column>
+                    </p:selectOneListbox>
+                </p:panelGrid>
+                <p:commandButton binding="#{bookBtn}" value="Book" update="growl" action="#{bookBean.bookBtnClick}" />
+            </h:form>
+        </div>
+    </h:body>
+</html>
+

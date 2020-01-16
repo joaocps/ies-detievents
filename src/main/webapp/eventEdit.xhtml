@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>EVENTS@DETI</title>
+    </h:head>
+    <h:body style="background: linear-gradient(to right, #CFDEF3, #E0EAFC)">
+        <div class="ui-fluid" style="padding: 20px">
+            <h:form id="form" >
+                <p:panelGrid columns="3" columnClasses="ui-grid-col-8,ui-grid-col-2, ui-grid-col-2" layout="grid" styleClass="ui-panelgrid-blank">
+                    <p:outputLabel value="EVENTS@DETI" style="font-size: 26px"/>
+                    <p:outputLabel value="Logged in as #{loginBean.loginRequest.username}" style="font-size: 18px"/>
+                    <p:commandButton value="Logout" action="#{loginBean.logoutBtnClick}" update="growl"/>
+                </p:panelGrid>
+
+                <p:growl id="growl" showDetail="true" life="3000" />
+
+                <p:tabMenu activeIndex="#{param.i}">
+                    <p:menuitem value="My Account" outcome="/account" icon="fa fa-user">
+                        <f:param name="i" value="0" />
+                    </p:menuitem>
+                    <p:menuitem value="Book Classroom" outcome="/bookClassroom" icon="fa fa-user">
+                        <f:param name="i" value="1" />
+                    </p:menuitem>
+                    <p:menuitem value="Events" outcome="/eventsList" icon="ui-icon-search"> 
+                        <f:param name="i" value="2" />
+                    </p:menuitem>
+                    <p:menuitem value="Edit Event" outcome="/eventEdit" icon="ui-icon-document">
+                        <f:param name="i" value="3" />
+                    </p:menuitem>
+                    <p:menuitem value="Create Event" rendered="#{!loginBean.isAluno}" outcome="/eventCreate" icon="ui-icon-star">
+                        <f:param name="i" value="3" />
+                    </p:menuitem>
+                </p:tabMenu>
+
+                <p:panelGrid columns="4" columnClasses="ui-grid-col-2,ui-grid-col-7,ui-grid-col-1,ui-grid-col-2" layout="grid" styleClass="ui-panelgrid-blank">
+                    <p:outputLabel value="Name:"></p:outputLabel>
+                    <p:inputText value="#{eventEditBean.evento.nome}" required="#{not empty param[seBtn.clientId]}" label="Name" ></p:inputText>
+
+                    <p:outputLabel value="Type:"></p:outputLabel>
+                    <p:selectOneMenu value="#{eventEditBean.evento.tipo}" required="#{not empty param[seBtn.clientId]}" label="Type">
+                        <f:selectItem itemLabel="Presentation" itemValue="presentation" />
+                        <f:selectItem itemLabel="Workshop" itemValue="workshop" />
+                        <f:selectItem itemLabel="Exam" itemValue="exam" />
+                    </p:selectOneMenu>
+                </p:panelGrid>
+
+                <p:panelGrid columns="2" columnClasses="ui-grid-col-2,ui-grid-col-10" layout="grid" styleClass="ui-panelgrid-blank">
+                    <p:outputLabel value="Description:"></p:outputLabel>
+                    <p:inputTextarea rows="4" value="#{eventEditBean.evento.descricao}" required="#{not empty param[seBtn.clientId]}" label="Description" />
+                </p:panelGrid>
+
+                <p:panelGrid columns="4" columnClasses="ui-grid-col-2,ui-grid-col-4,ui-grid-col-2,ui-grid-col-4" layout="grid" styleClass="ui-panelgrid-blank">
+                    <p:outputLabel for="startDate" value="Start Date:" />
+                    <p:calendar id="startDate" value="#{eventEditBean.evento.reserva.dataInicio}" pattern="dd/MM/yyyy HH:mm:ss" mask="true" required="#{not empty param[seBtn.clientId]}" label="Start Date" />
+                    <p:outputLabel for="endDate" value="End Date:" />
+                    <p:calendar id="endDate" value="#{eventEditBean.evento.reserva.dataFim}" pattern="dd/MM/yyyy HH:mm:ss" mask="true" required="#{not empty param[seBtn.clientId]}" label="End Date" />
+
+                    <p:outputLabel for="depList" value="Department:" />
+                    <p:selectOneListbox id="depList" value="#{eventEditBean.evento.reserva.sala.dep}" var="d" filter="true" converter="departamentoConverter" filterMatchMode="contains" required="#{not empty param[seBtn.clientId]}">
+                        <p:ajax update="salasList" event="change" listener="#{eventEditBean.updateSalasList}" />
+                        <f:selectItems value="#{eventEditBean.departamentos}" var="dep" itemLabel="#{dep.nome}" itemValue="#{dep}" />
+                        <p:column>
+                            <h:outputText value="#{d.nome}" />
+                        </p:column>
+                    </p:selectOneListbox>
+
+                    <p:outputLabel for="salasList" value="Classroom:" />
+                    <p:selectOneListbox id="salasList" value="#{eventEditBean.evento.reserva.sala}" var="s" filter="true" converter="salaConverter" filterMatchMode="contains" required="#{not empty param[seBtn.clientId]}">
+                        <f:selectItems value="#{eventEditBean.salas}" var="sala" itemLabel="#{sala.nome}" itemValue="#{sala}" />
+                        <p:column>
+                            <h:outputText value="#{s.nome}" />
+                        </p:column>
+                    </p:selectOneListbox>
+                </p:panelGrid>
+                <p:commandButton binding="#{seBtn}" value="Save" action="#{eventEditBean.editBtnClick}" update="growl"></p:commandButton>
+            </h:form>
+        </div>
+    </h:body>
+</html>
+
+

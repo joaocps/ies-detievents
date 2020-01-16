@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>EVENTS@DETI</title>
+    </h:head>
+    <h:body style="background: linear-gradient(to right, #CFDEF3, #E0EAFC)">
+        <div class="ui-fluid" style="padding: 50px">
+
+            <p:outputLabel value="EVENTS@DETI" style="font-size: 34px"/>
+            <br/>
+            <p:outputLabel value="Your plataform to manage your awesome events at University of Aveiro." style="font-size: 18px"/>
+
+            <h:form>
+                <p:growl id="growl" showDetail="true" life="3000" />
+
+                <p:dialog header="Login" widgetVar="dlg" resizable="false" visible="true" closable="false" showEffect="clip" draggable="false">
+                    <h:panelGrid columns="2" cellpadding="10">
+                        <p:outputLabel for="username" value="Username:" />
+                        <p:inputText id="username" value="#{loginBean.loginRequest.username}" required="#{not empty param[loginBtn.clientId]}" label="Username" />
+
+                        <p:outputLabel for="password" value="Password:" />
+                        <p:password id="password" value="#{loginBean.loginRequest.password}" required="#{not empty param[loginBtn.clientId]}" label="Password" />
+
+                        <f:facet name="footer">
+                            <p:commandButton binding="#{loginBtn}" value="Login" update="growl" actionListener="#{loginBean.loginBtnClick}"
+                                             oncomplete="handleLoginRequest(xhr, status, args)" />
+                        </f:facet>
+
+                    </h:panelGrid>
+                    <f:facet name="footer">
+                        <p:commandButton value="Register" onclick="PF('dlgReg').show();" />
+                    </f:facet>  
+                </p:dialog>
+
+
+                <p:dialog header="Register" widgetVar="dlgReg" resizable="false" draggable="false" showEffect="puff" hideEffect="clip" >
+                    <h:panelGrid id="regForm" columns="2" cellpadding="5">
+
+                        <p:outputLabel for="type" value="User Type:" />
+                        <p:selectOneButton id="type" value="#{loginBean.userType}" required="#{not empty param[regBtn.clientId]}">                          
+                            <f:selectItem itemLabel="Aluno" itemValue="aluno" />
+                            <f:selectItem itemLabel="Professor" itemValue="professor" />
+                            <p:ajax update="regForm" event="change" listener="#{loginBean.updateForm}" />
+                        </p:selectOneButton>
+
+                        <p:outputLabel for="reg_username" value="Username:" />
+                        <p:inputText id="reg_username" value="#{loginBean.registerRequest.username}" required="#{not empty param[regBtn.clientId]}" label="Username"/>
+
+                        <p:outputLabel for="reg_firstname" value="First Name:" />
+                        <p:inputText id="reg_firstname" value="#{loginBean.registerRequest.firstname}" required="#{not empty param[regBtn.clientId]}" label="First Name"/>
+
+                        <p:outputLabel for="reg_lastname" value="Last Name:" />
+                        <p:inputText id="reg_lastname" value="#{loginBean.registerRequest.lastname}" required="#{not empty param[regBtn.clientId]}" label="Last Name"/>
+
+                        <p:outputLabel for="reg_email" value="Email:" />
+                        <p:inputText id="reg_email" value="#{loginBean.registerRequest.email}" required="#{not empty param[regBtn.clientId]}" label="Email"/>
+
+                        <p:outputLabel for="reg_nmec" value="NMec:" />
+                        <p:inputText id="reg_nmec" value="#{loginBean.user.nmec}" required="#{not empty param[regBtn.clientId]}" label="NMec"/>
+
+                        <p:outputLabel for="reg_curso" rendered="#{loginBean.isAluno}" value="Course:" />
+                        <p:inputText id="reg_curso" rendered="#{loginBean.isAluno}" value="#{loginBean.user.curso}" required="#{not empty param[regBtn.clientId]}" label="Course"/>
+
+                        <p:outputLabel for="depList" value="Department:" />
+                        <p:selectOneMenu id="depList" value="#{loginBean.user.dep}" var="d" filter="true" converter="departamentoConverter" filterMatchMode="contains" required="#{not empty param[regBtn.clientId]}">
+                            <f:selectItems value="#{loginBean.departamentos}" var="dep" itemLabel="#{dep.nome}" itemValue="#{dep}" />
+                            <p:column>
+                                <h:outputText value="#{d.nome}" />
+                            </p:column>
+                        </p:selectOneMenu>
+
+                        <p:outputLabel for="reg_password" value="Password:" />
+                        <p:password id="reg_password" value="#{loginBean.registerRequest.password}" required="#{not empty param[regBtn.clientId]}" label="Password"/>
+
+                        <p:outputLabel for="reg_rep_password" value="Repeat Password:" />
+                        <p:password id="reg_rep_password" value="#{loginBean.registerRequest.rePassword}" required="#{not empty param[regBtn.clientId]}" label="Repeat Password"/>
+
+                        <f:facet name="footer">
+                            <p:commandButton binding="#{regBtn}" value="Register" update="growl" actionListener="#{loginBean.registerBtnClick}"
+                                             oncomplete="handleRegisterRequest(xhr, status, args)"/>
+                        </f:facet>
+
+                    </h:panelGrid>
+                    <f:facet name="footer">
+                        <p:commandButton value="Cancel" onclick="PF('dlgReg').hide();" />
+                    </f:facet>  
+                </p:dialog>
+
+            </h:form>
+        </div>
+    </h:body>
+
+    <script type="text/javascript">
+        function handleLoginRequest(xhr, status, args) {
+            if (args.validationFailed || !args.loggedIn) {
+                PF('dlg').jq.effect("shake", {times: 5}, 100);
+            } else {
+                PF('dlg').hide();
+                $('#loginLink').fadeOut();
+                //window.open("faces/allEvents.xhtml", "_self");
+                window.location = "faces/eventsList.xhtml?i=2";
+            }
+        }
+
+        function handleRegisterRequest(xhr, status, args) {
+            if (args.validationFailed || !args.regSuccess) {
+                PF('dlgReg').jq.effect("shake", {times: 5}, 100);
+            } else {
+                PF('dlgReg').hide();
+            }
+        }
+    </script>
+</html>
