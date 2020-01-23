@@ -1,2 +1,1 @@
-# tqs-final
-Testing and software quality final project
+# Final Project of Software Engineer Introduction
